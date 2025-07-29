@@ -70,7 +70,7 @@ fn main() {
     if response_times.len() < 1 {
         println!("\rThere was no successful request...");
     } else {
-        println!("Failed requests: {failed_requests} ");
+        println!("\rFailed requests: {failed_requests} ");
         println!("{}", print_result(calc_stats(response_times)));
     }
     
@@ -99,19 +99,19 @@ fn print_result(result: (u128, u128, u128)) -> String{
     if min < 1000 {
         text.push_str(format!("Min: {min} ms,").as_str());
     } else {
-        text.push_str(format!("Min: {} ms,", min as f32 / 1000.0).as_str());
+        text.push_str(format!("Min: {} s,", min as f32 / 1000.0).as_str());
     }
 
     if max < 1000 {
-        text.push_str(format!("Min: {max} ms,").as_str());
+        text.push_str(format!(" Max: {max} ms,").as_str());
     } else {
-        text.push_str(format!("Min: {} ms,", max as f32 / 1000.0).as_str());
+        text.push_str(format!(" Max: {} s,", max as f32 / 1000.0).as_str());
     }
 
     if avg < 1000 {
-        text.push_str(format!("Min: {avg} ms,").as_str());
+        text.push_str(format!(" Avg: {avg} ms").as_str());
     } else {
-        text.push_str(format!("Min: {} ms,", avg as f32 / 1000.0).as_str());
+        text.push_str(format!(" Avg: {} s", avg as f32 / 1000.0).as_str());
     }
 
     text
