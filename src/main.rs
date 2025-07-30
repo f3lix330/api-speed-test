@@ -78,7 +78,7 @@ fn calc_stats(response_times: Vec<Duration>) -> (u128, u128, u128) {
         }
         sum += millis;
     }
-    plot(&response_times, min, max);
+    plot(&response_times);
     (min, max, sum / response_times.len() as u128)
 }
 
@@ -128,7 +128,7 @@ fn delay_countdown(wait_time: u128, step: u128, total: u128) {
     thread::sleep(Duration::from_millis((wait_time % 1000) as u64));           
 }
 
-fn plot(values: &Vec<Duration>, min: u128, max: u128) {
+fn plot(values: &Vec<Duration>) {
 
     let mut data: Vec<f64> = values.iter().map(|d| d.as_millis() as f64).collect();
     data.sort_by(|a, b| a.partial_cmp(b).unwrap());
