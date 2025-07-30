@@ -421,3 +421,4 @@ FodyWeavers.xsd
 # Added by cargo
 
 /target
+boxplot.png
