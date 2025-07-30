@@ -1,6 +1,9 @@
+#[allow(dead_code)]
+
 use std::{io::Write, thread, time::{Duration, Instant}, u128};
 use reqwest::blocking::{Response, Client};
 use clap::{command, Parser};
+use plotters::prelude::*;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -59,7 +62,6 @@ fn main() {
         println!("\rFailed requests: {failed_requests} ");
         println!("{}", print_result(calc_stats(response_times)));
     }
-    
 }
 
 fn calc_stats(response_times: Vec<Duration>) -> (u128, u128, u128) {
@@ -76,10 +78,11 @@ fn calc_stats(response_times: Vec<Duration>) -> (u128, u128, u128) {
         }
         sum += millis;
     }
+    plot(&response_times, min, max);
     (min, max, sum / response_times.len() as u128)
 }
 
-fn print_result(result: (u128, u128, u128)) -> String{
+fn print_result(result: (u128, u128, u128)) -> String {
     let (min, max, avg) = result;
     let mut  text = String::new();
     if min < 1000 {
@@ -123,4 +126,27 @@ fn delay_countdown(wait_time: u128, step: u128, total: u128) {
         thread::sleep(Duration::from_secs(1));
     }
     thread::sleep(Duration::from_millis((wait_time % 1000) as u64));           
+}
+
+fn plot(values: &Vec<Duration>, min: u128, max: u128) {
+
+    let mut data: Vec<f64> = values.iter().map(|d| d.as_millis() as f64).collect();
+    data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    let quartiles = Quartiles::new(&data);
+
+    let root = BitMapBackend::new("boxplot.png", (1000, 200)).into_drawing_area();
+    root.fill(&WHITE).unwrap();
+
+    let mut chart = ChartBuilder::on(&root)
+        .margin(30)
+        .x_label_area_size(40)
+        .y_label_area_size(40)
+        .build_cartesian_2d((quartiles.values()[0] * 0.98) as f32..(quartiles.values()[4] * 1.02) as f32, -5.0f32..5.0f32).unwrap();
+
+    chart.configure_mesh().x_desc("Millisekunden").y_labels(0).draw().unwrap();
+   
+    println!("{:?}", quartiles);
+    let boxplot = Boxplot::new_horizontal(0f32, &quartiles);
+
+    chart.draw_series(std::iter::once(boxplot)).unwrap();
 }
